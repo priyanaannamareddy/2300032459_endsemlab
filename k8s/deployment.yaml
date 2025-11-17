@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carrental-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: carrental
+  template:
+    metadata:
+      labels:
+        app: carrental
+    spec:
+      containers:
+      - name: carrental
+        image: your-registry/carrental:latest  # Replace with your image
+        ports:
+        - containerPort: 8081
+        env:
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: carrental-secret
+              key: mysql-user
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: carrental-secret
+              key: mysql-password
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: carrental-config
